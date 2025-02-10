@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Krobb's Body Parts with Modal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: #fff; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        #container { width: 100vw; max-width: 100vw; border: 4px solid black; display: flex; justify-content: center; align-items: center; transform: translateY(45vh); position: relative; }
+        canvas { width: 100%; height: auto; }
+        #animateButtonHappy, #animateButtonSad, #animateButtonOk {
+            position: absolute; top: 10px; z-index: 9999; padding: 10px 20px; background: #000; color: #fff; border: none; cursor: pointer; font-size: 16px;
+        }
+        #animateButtonSad { left: 100px; }
+        #animateButtonOk { right: 100px; }
+
+        /* Modal Styles */
+        #modal {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40vw;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 1000;
+            border-left: 4px solid black;
+        }
+
+        #goblinTalk {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #1a1a1a;
+        }
+
+        #goblinTalk p {
+            background: #333;
+            padding: 8px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        #commandPrompt {
+            padding: 10px;
+            background: #222;
+            display: flex;
+            align-items: center;
+        }
+
+        #commandInput {
+            width: 100%;
+            padding: 8px;
+            background: #000;
+            color: #0f0;
+            border: 1px solid #555;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <button id="animateButtonHappy" onclick="triggerEarAnimation(false, 0)">Happy</button>
+    <button id="animateButtonSad" onclick="triggerEarAnimation(false, -45)">Sad</button>
+    <button id="animateButtonOk" onclick="triggerEarAnimation(false, -25)">"Ok"</button>
+    
+    <div id="container">
+        <img id="bodyImage" src="images/body.png" style="display:none;" />
+        <img id="leftEarImage" src="images/ear.png" style="display:none;" />
+        <img id="rightEarImage" src="images/ear.png" style="display:none;" />
+        <img id="headImage" src="images/head.png" style="display:none;" />
+        <img id="mouthImage" src="images/grimace.png" style="display:none;" />
+        <img id="leftArmImage" src="images/arm.png" style="display:none;" />
+        <img id="rightArmImage" src="images/arm.png" style="display:none;" />
+        <canvas id="myCanvas"></canvas>
+
+        <!-- Modal with Goblin Talk & Command Prompt -->
+        <div id="modal">
+            <div id="goblinTalk">
+                <p>*Krobb stares at you curiously...*</p>
+            </div>
+            <div id="commandPrompt">
+                <input type="text" id="commandInput" placeholder="> Type thy command..." autofocus />
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const bodyImg = document.getElementById('bodyImage'),
+            leftEarImg = document.getElementById('leftEarImage'),
+            rightEarImg = document.getElementById('rightEarImage'),
+            headImg = document.getElementById('headImage'),
+            mouthImg = document.getElementById('mouthImage'),
+            leftArmImg = document.getElementById('leftArmImage'),
+            rightArmImg = document.getElementById('rightArmImage'),
+            canvas = document.getElementById('myCanvas'),
+            ctx = canvas.getContext('2d');
+
+        const goblinTalk = document.getElementById('goblinTalk');
+        const commandInput = document.getElementById('commandInput');
+
+        function triggerEarAnimation(pageLoad, tempAngle) {
+            let angle = 0, direction = 1, steps = 0;
+            angle = tempAngle;
+            const interval = setInterval(() => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(leftArmImg, 0, 0);
+                ctx.drawImage(bodyImg, 0, 0);
+                ctx.drawImage(leftEarImg, 0, 0);
+                ctx.drawImage(headImg, 0, 0);
+
+                if (pageLoad === false) {
+                    if (tempAngle >= 0 && tempAngle !== -25) {
+                        mouthImg.src = 'images/smile.png';
+                        ctx.drawImage(mouthImg, 0, 0);
+                    } else if (tempAngle < 0 && tempAngle !== -25) {
+                        mouthImg.src = 'images/frown.png';
+                        ctx.drawImage(mouthImg, 0, 0);
+                    } else if (tempAngle === -25) {
+                        mouthImg.src = 'images/grimace.png';
+                        ctx.drawImage(mouthImg, 0, 0);
+                    }
+                }
+
+                angle += 3 * direction;
+                steps++;
+                if (steps >= 10) direction = -1;
+                if (steps >= 20) clearInterval(interval);
+            }, 50);
+        }
+
+        commandInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                const command = commandInput.value.trim().toLowerCase();
+                if (command) {
+                    addGoblinResponse(`> ${command}`, true);
+                    interpretCommand(command);
+                    commandInput.value = '';
+                }
+            }
+        });
+
+        function addGoblinResponse(message, isCommand = false) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.style.color = isCommand ? '#0f0' : '#fff';
+            goblinTalk.appendChild(p);
+            goblinTalk.scrollTop = goblinTalk.scrollHeight;
+        }
+
+        function interpretCommand(cmd) {
+            if (cmd === 'hello') {
+                addGoblinResponse('Krobb: "Greetings, traveler!"');
+                triggerEarAnimation(false, 0);
+            } else if (cmd === 'insult') {
+                addGoblinResponse('Krobb: "Ouch! That hurts!"');
+                triggerEarAnimation(false, -45);
+            } else if (cmd === 'praise') {
+                addGoblinResponse('Krobb: "Aw, shucks. Thank you!"');
+                triggerEarAnimation(false, 0);
+            } else if (cmd === 'grimace') {
+                addGoblinResponse('Krobb: *grimaces awkwardly*');
+                triggerEarAnimation(false, -25);
+            } else {
+                addGoblinResponse('Krobb: "I do not understand that incantation."');
+            }
+        }
+
+        triggerEarAnimation(true, -25);
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Krobb's Body Parts with Numbered Joints</title>
+</head>
+<body>
+    <!-- Load both body and head images -->
+    <img id="bodyImage" src="images/body.png" style="display:none;" />
+    <img id="headImage" src="images/head.png" style="display:none;" />
+
+    <canvas id="myCanvas" style="border:1px solid black;"></canvas>
+
+    <script>
+        const bodyImg = document.getElementById('bodyImage');
+        const headImg = document.getElementById('headImage');
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const bodyCentroids = [];
+        const headCentroids = [];
+
+        // Draws a cyan dot for detected magenta pixels
+        function drawCyanDot(x, y) {
+            ctx.fillStyle = '#00FFFF';
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draws a red dot with a label for centroids
+        function drawRedDot(x, y, label) {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2); // Red dot
+            ctx.fill();
+
+            ctx.fillStyle = 'red';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(label, x + 8, y - 8); // Offset for visibility
+        }
+
+        // Detects magenta blobs and calculates centroids
+        function processBodyPart(image, startingX, startingY, partName) {
+            ctx.drawImage(image, startingX, startingY);
+
+            const imageData = ctx.getImageData(startingX, startingY, image.width, image.height);
+            const data = imageData.data;
+
+            const magentaPixels = [];
+            const centroids = [];
+
+            // Step 1: Detect magenta pixels
+            for (let y = 0; y < image.height; y++) {
+                for (let x = 0; x < image.width; x++) {
+                    const index = (y * image.width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+
+                    if (r === 255 && g === 0 && b === 255 && a !== 0) {
+                        magentaPixels.push({ x: x + startingX, y: y + startingY }); // Adjust coordinates
+                        drawCyanDot(x + startingX, y + startingY);
+                    }
+                }
+            }
+
+            console.log(`${partName}: Total magenta pixels detected: ${magentaPixels.length}`);
+
+            // Step 2: Group magenta pixels into blobs
+            const distanceThreshold = 10;
+            const blobs = [];
+
+            magentaPixels.forEach(pixel => {
+                let addedToBlob = false;
+
+                for (const blob of blobs) {
+                    for (const point of blob) {
+                        const dx = pixel.x - point.x;
+                        const dy = pixel.y - point.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance <= distanceThreshold) {
+                            blob.push(pixel);
+                            addedToBlob = true;
+                            break;
+                        }
+                    }
+                    if (addedToBlob) break;
+                }
+
+                if (!addedToBlob) {
+                    blobs.push([pixel]);
+                }
+            });
+
+            console.log(`${partName}: Total blobs detected: ${blobs.length}`);
+
+            // Step 3: Calculate centroids and label them starting from 1
+            blobs.forEach((blob, index) => {
+                const sumX = blob.reduce((acc, p) => acc + p.x, 0);
+                const sumY = blob.reduce((acc, p) => acc + p.y, 0);
+                const centerX = Math.floor(sumX / blob.length);
+                const centerY = Math.floor(sumY / blob.length);
+                const label = index + 1;
+
+                centroids.push({ label, x: centerX, y: centerY });
+
+                drawRedDot(centerX, centerY, label);
+                console.log(`${partName} - Blob ${label}: Centroid at (x: ${centerX}, y: ${centerY}), Size: ${blob.length}`);
+            });
+
+            return centroids;
+        }
+
+        // Load both body and head images before processing
+        bodyImg.onload = function () {
+            canvas.width = Math.max(bodyImg.width, headImg.width);
+            canvas.height = bodyImg.height + headImg.height + 20; // Some spacing between parts
+
+            // Process the body (drawn at the top)
+            const bodyData = processBodyPart(bodyImg, 0, 0, 'Body');
+            bodyCentroids.push(...bodyData);
+
+            // Process the head (drawn below the body with a gap)
+            headImg.onload = function () {
+                const headData = processBodyPart(headImg, 0, bodyImg.height + 20, 'Head');
+                headCentroids.push(...headData);
+
+                // Final output of all centroids
+                console.log('Body Centroids:', bodyCentroids);
+                console.log('Head Centroids:', headCentroids);
+            };
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Glitchy Krobb</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        #container { width: 100vw; max-width: 100vw; border: 4px solid red; display: flex; justify-content: center; align-items: center; transform: translateY(45vh); filter: hue-rotate(0deg); }
+        canvas { width: 100%; height: auto; }
+        #glitchOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.1);
+            mix-blend-mode: difference;
+            pointer-events: none;
+            animation: flicker 0.1s infinite;
+        }
+        @keyframes flicker {
+            from { opacity: 0.1; }
+            to { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="glitchOverlay"></div>
+        <img id="rightArmImage" src="images/arm.png" style="display:none;" />
+        <img id="bodyImage" src="images/body.png" style="display:none;" />
+        <img id="leftEarImage" src="images/ear.png" style="display:none;" />
+        <img id="rightEarImage" src="images/ear.png" style="display:none;" />
+        <img id="headImage" src="images/head.png" style="display:none;" />
+        <img id="mouthImage" src="images/grimace.png" style="display:none;" />
+        <img id="leftArmImage" src="images/arm.png" style="display:none;" />
+        
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <script>
+        const bodyImg = document.getElementById('bodyImage'), leftEarImg = document.getElementById('leftEarImage'), rightEarImg = document.getElementById('rightEarImage'), headImg = document.getElementById('headImage'), mouthImg = document.getElementById('mouthImage'), leftArmImg = document.getElementById('leftArmImage'), rightArmImg = document.getElementById('rightArmImage'), canvas = document.getElementById('myCanvas'), ctx = canvas.getContext('2d');
+
+        const parts = [bodyImg, leftEarImg, rightEarImg, headImg, mouthImg, leftArmImg, rightArmImg];
+
+        function randomGlitch() {
+            return Math.random() * 10 - 5; // Random jitter between -5 and 5
+        }
+
+        function drawGlitch() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Apply random offsets
+            parts.forEach(part => {
+                const offsetX = randomGlitch();
+                const offsetY = randomGlitch();
+                ctx.drawImage(part, offsetX, offsetY);
+            });
+
+            // Random hue shifts
+            document.getElementById('container').style.filter = `hue-rotate(${Math.random() * 360}deg)`;
+
+            requestAnimationFrame(drawGlitch);
+        }
+
+        function loadImages() {
+            let loadedImages = 0;
+            parts.forEach(img => {
+                img.onload = () => {
+                    loadedImages++;
+                    if (loadedImages === parts.length) {
+                        canvas.width = Math.max(...parts.map(img => img.width));
+                        canvas.height = Math.max(...parts.map(img => img.height));
+                        drawGlitch();
+                    }
+                };
+                img.onerror = () => console.error(`Failed to load image: ${img.src}`);
+            });
+        }
+
+        loadImages();
+    </script>
+</body>
+</html>

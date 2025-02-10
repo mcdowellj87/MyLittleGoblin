@@ -1,0 +1,57 @@
+header{
+    width:100%;
+    height:100px;
+    text-align:center;
+    background-color:black;
+    cursor:pointer;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    -khtml-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+body{
+    margin: 0; height: 100%; overflow: hidden
+}
+/*class that allows a div to act as a table*/
+div.table{ display:table; border-collapse:collapse; }
+
+/*class that allows a div to act as a table row*/
+div.table > div{ display:table-row; }
+
+/*class that allows a div to act as a table division*/
+div.table > div > div{ display:table-cell; }
+
+header{
+    height:35vh;
+    position:relative
+}
+header p{
+    margin:0;
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin-right:-50%;
+    transform:translate(-50%, -50%);
+    color:white;
+    font-size:500%;
+}
+article{
+    width:1000px;
+    height:1000px;
+}
+a{
+    color:white;
+}
+/*width and height must be an even number.*/
+svg{
+    width:512px;
+    height:512px;
+}
+/*
+#subject{
+    width:592px;
+    height:592px;
+}
+*/

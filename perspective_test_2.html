@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Perspective API Test (Goblin Mode)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #container {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            text-align: center;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            background: #000;
+            color: #0f0;
+            border: 2px solid #555;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        #toggleMode {
+            margin-top: 10px;
+            padding: 10px;
+            background: #006400;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h2>Perspective API Test (Goblin Mode)</h2>
+    <input type="text" id="inputText" placeholder="Type something here...">
+    <button id="toggleMode">Toggle Goblin Mode (OFF)</button>
+    <div id="result">Awaiting input...</div>
+</div>
+
+<script>
+    let goblinMode = false;
+
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    async function analyzeToxicity(text) {
+        const apiKey = 'AIzaSyDYfn09mzAGF5pafYLYe9hgnSBaNTV7xpA'; // Replace with your Perspective API key
+        const url = `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${apiKey}`;
+
+        const requestData = {
+            comment: { text: text },
+            languages: ["en"],
+            requestedAttributes: { TOXICITY: {} }
+        };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(requestData),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            const toxicityScore = data.attributeScores.TOXICITY.summaryScore.value;
+
+            handleResponse(text, toxicityScore);
+        } catch (error) {
+            console.error('API Error:', error);
+        }
+    }
+
+    function handleResponse(text, toxicity) {
+        const resultDiv = document.getElementById('result');
+        let message = '';
+
+        if (goblinMode) {
+            message = toxicity > 0.5 ? "Krobb is delighted with your vile words!" : "Krobb demands more chaos!";
+        } else {
+            message = toxicity > 0.5 ? "That was mean! 😢" : "That's kind. 😊";
+        }
+
+        resultDiv.innerHTML = `<strong>Input:</strong> "${text}"<br><strong>Toxicity:</strong> ${(toxicity * 100).toFixed(2)}%<br><strong>Response:</strong> ${message}`;
+    }
+
+    document.getElementById('inputText').addEventListener('input', debounce((e) => {
+        const text = e.target.value;
+        if (text.trim() !== '') {
+            analyzeToxicity(text);
+        }
+    }, 300));
+
+    document.getElementById('toggleMode').addEventListener('click', () => {
+        goblinMode = !goblinMode;
+        document.getElementById('toggleMode').textContent = `Toggle Goblin Mode (${goblinMode ? 'ON' : 'OFF'})`;
+    });
+</script>
+
+</body>
+</html>

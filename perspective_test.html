@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perspective API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        textarea {
+            width: 300px;
+            height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Perspective API Test</h1>
+    <textarea id="textInput" placeholder="Type something toxic... or not!"></textarea>
+    <button onclick="analyzeText()">Analyze Text</button>
+    <div id="result"></div>
+
+    <script>
+        function analyzeText() {
+            const apiKey = 'AIzaSyDYfn09mzAGF5pafYLYe9hgnSBaNTV7xpA'; // Replace with your API key
+            const text = document.getElementById('textInput').value;
+
+            const url = `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${apiKey}`;
+
+            const data = {
+                comment: { text: text },
+                languages: ["en"],
+                requestedAttributes: { TOXICITY: {} }
+            };
+
+            fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(result => {
+                const score = result.attributeScores.TOXICITY.summaryScore.value;
+                document.getElementById('result').innerText = `Toxicity Score: ${score.toFixed(2)}`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = 'Error analyzing text.';
+            });
+        }
+    </script>
+</body>
+</html>

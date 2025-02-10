@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>SVG MANCER</title>
+        <link rel="stylesheet" type="text/css" href="css/svg_mancer.css">
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <style>
+            .noSelect {
+                user-drag: none; 
+                user-select: none;
+                -moz-user-select: none;
+                -webkit-user-drag: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+            }
+            .button {
+                background-color:black;
+                border: none;
+                color: white;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+                border-style: solid;
+                border-color: white;
+                border-width:1px;
+            }
+        </style>
+    </head>
+    <body>
+        <header style="filter:brightness(200%);background-image:url('css/images/controls.svg'),url('css/images/help.svg'),url('css/images/logo.svg');background-repeat:no-repeat,no-repeat,no-repeat;background-size:20%,16%,60%;background-position:1%,26%,97%,50%,50%,50%;">
+            <table id="options" style="position:relative;top:31.5vh;left:0.55vw;">
+                <tr>
+                    <td style="color:white;">[options]</td>
+                    <td><input style="width:100%;" type="button" class="button" value="-points" onclick="togglePoints('points');"></td>
+                    <td><input type="button" style="width:100%;" class="button" value="-scaffold" onclick="toggleConstructionGraphics();"></td>
+                    <td><input type="button" style="width:100%;" class="button" value="-subject" onclick="toggleSubject();"></td>
+                    <td><input type="button" style="width:100%;" class="button" value="-fill" onclick="fillCurve('#ffe39f');"></td>
+                    <td style="color:white;">&nbsp;//Hint: click and drag SVGs, use mouse wheel to rotate.</td>
+                </tr>
+            </table>
+        </header>
+        <section>
+            <!--Because of a design oversight, one SVG curve must be present at the load of the page, it must also have the following IDs.-->
+            <svg>
+                <!-----------------------pA--------2pB-->
+                <path id="lineAB" d="M 100 350 l 150 -300" stroke="red" stroke-width="3" stroke-dasharray="5,5" fill="none" />
+                <!-------------------pB=pA+2pB----2pC-->
+                <path id="lineBC" d="M 250 50 l 150 300" stroke="red" stroke-width="3" stroke-dasharray="5,5" fill="none" />
+                <!--The Bezier curve-->
+                <!--2pC=2pB+2pC-->
+                <!------------pA--------2pB----2pC-->
+                <path id="bezierCurve" d="M 100 350 q 150 -300 300 0" stroke="#ffe39f" stroke-width="1" fill="none" />
+                <!-- Mark relevant points -->
+                <g id="points" stroke="black" stroke-width="3" fill="black">
+                    <circle id="pointA" cx="100" cy="350" r="3" />
+                    <circle id="pointB" cx="250" cy="50" r="3" />
+                    <circle id="pointC" cx="400" cy="350" r="3" />
+                </g>
+                <!-- Label the points -->
+                <g id="labels" font-size="30" font-family="sans-serif" fill="black" stroke="none" text-anchor="middle">
+                    <text id="pointALabel" x="100" y="350" dx="-30">A</text>
+                    <text id="pointBLabel" x="250" y="50" dy="-10">B</text>
+                    <text id="pointCLabel" x="400" y="350" dx="30">C</text>
+                </g>
+            </svg>
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            width="512px" height="512px" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+       </svg>
+       
+            <!--^^^-->
+            <!--$$$-->
+        </section>
+    </body>
+    <script src="js/svg_mancer.js"></script>
+</html>

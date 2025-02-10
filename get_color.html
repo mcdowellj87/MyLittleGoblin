@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Find #FF00FF Pixels in PNG</title>
+</head>
+<body>
+    <!-- Load the PNG image -->
+    <img id="myImage" src="images/head.png" style="display:none;" />
+
+    <!-- Hidden canvas to process the image -->
+    <canvas id="myCanvas" style="border:1px solid black;"></canvas>
+
+    <script>
+        const img = document.getElementById('myImage');
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        img.onload = function () {
+            // Set canvas size to match the image
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Draw the image onto the canvas
+            ctx.drawImage(img, 0, 0);
+
+            // Get all pixel data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Scan the entire image for #FF00FF
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    const index = (y * canvas.width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const a = data[index + 3];
+
+                    // Check for magenta (#FF00FF)
+                    if (r === 255 && g === 0 && b === 255 && a !== 0) {
+                        console.log(`Magenta pixel found at (x: ${x}, y: ${y})`);
+                    }
+                }
+            }
+        };
+    </script>
+</body>
+</html>
