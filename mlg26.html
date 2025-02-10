@@ -135,7 +135,7 @@
             centroidsArray.push({ x: Math.floor(sumX / magentaPixels.length), y: Math.floor(sumY / magentaPixels.length) });
         }
 
-        function drawGoblinPasties() {
+        function drawGoblinDots() {
     ctx.fillStyle = '#c3ef01'; // Green color
     magentaCentroids.forEach(({ x, y }) => {
         ctx.beginPath();
@@ -176,7 +176,7 @@
                 }
 
                 scanCanvasForMagenta();
-                drawGoblinPasties();
+                drawGoblinDots();
 
                 angle += 3 * direction;
                 steps++;
